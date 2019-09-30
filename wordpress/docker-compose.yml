@@ -1,0 +1,41 @@
+version: "3.4"
+volumes:
+  data_wordpress:
+  wordpress_content:
+services:
+  db_wordpress:
+    image: mysql:5.6
+    ports:
+      - "3306:3306"
+    expose:
+      - 3306
+    volumes:
+      - data_wordpress:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+  phpmyadmin_wordpress:
+    image: phpmyadmin/phpmyadmin:latest
+    links:
+      - db_wordpress
+    ports:
+      - 81:80
+    environment:
+      - PMA_ARBITRARY=1    
+  app_wordpress:
+    image: wordpress:latest
+    volumes:
+      - wordpress_content:/var/www/html/wp-content 
+    depends_on:
+       - db_wordpress
+    ports:
+       - "8000:80"
+    restart: always
+    environment:
+       - WORDPRESS_DB_HOST=db_wordpress:3306
+       - WORDPRESS_DB_USER=wordpress
+       - WORDPRESS_DB_PASSWORD=wordpress
+       - WORDPRESS_DB_NAME=wordpress
+  

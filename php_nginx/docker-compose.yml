@@ -1,0 +1,57 @@
+version: "3.4" 
+services:
+  # Web service layer
+  nginx_php:
+    image: nginx:1.13
+    build: ./nginx
+    volumes:
+      - ./app:/var/www/html
+    ports:
+      - 8080:80
+    depends_on:
+      - php_nginx
+    networks:
+      - code-network  
+  # Application service layer
+  php_nginx:
+    build:
+      context: ./php
+    volumes:
+      - ./app:/var/www/html
+    ports:
+      - 9000:9000
+    depends_on:
+      - mysql_nginx
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_PASS=123.456
+    networks:
+      - code-network  
+  # Data persistence service layer
+  mysql_nginx:
+    build:
+      context: ./mysql
+    volumes:
+      - "db_data_nginx:/var/lib/mysql"
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=123.456
+    networks:
+      - code-network  
+  phpmyadmin_nginx:
+    image: phpmyadmin/phpmyadmin:latest
+    links:
+      - mysql_nginx
+    ports:
+      - 81:80
+    environment:
+      - PMA_ARBITRARY=1  
+    networks:
+      - code-network    
+volumes:
+  db_data_nginx:
+  
+networks:
+    code-network:
+        driver: bridge

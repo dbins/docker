@@ -1,0 +1,7 @@
+version: "3.4"
+services:
+  asp_classico:
+    build: ./
+    ports:
+      - 81:80
+  
